@@ -16,9 +16,11 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Klei.AI;
+using PeterHan.PLib.Core;
 using UnityEngine;
 
 using DETAILTABS = STRINGS.UI.DETAILTABS;
@@ -219,6 +221,10 @@ namespace PeterHan.FastTrack.UIPatches {
 		/// </summary>
 		private readonly List<IStorage> storages;
 
+		private Component teleStorage = null;
+
+		private static readonly Type teleStorageType = PPatchTools.GetTypeSafe("TeleStorage.TeleStorage", "TeleStorage");
+
 		private bool statusActive;
 
 		private bool vitalsActive;
@@ -256,6 +262,7 @@ namespace PeterHan.FastTrack.UIPatches {
 			processRows.Clear();
 			processVisible.Clear();
 			storages.Clear();
+			teleStorage = null;
 			conditionParent = null;
 			instance = null;
 			base.OnCleanUp();
@@ -269,6 +276,7 @@ namespace PeterHan.FastTrack.UIPatches {
 		private void OnSelectTarget(GameObject target) {
 			lastReport = null;
 			storages.Clear();
+			teleStorage = null;
 			if (target == null) {
 				lastSelection = default;
 				vitalsActive = false;
@@ -284,6 +292,11 @@ namespace PeterHan.FastTrack.UIPatches {
 						storages.Add(storage);
 				}
 				found.Recycle();
+
+				if (teleStorageType != null) {
+					teleStorage = target.GetComponent(teleStorageType);
+				}
+
 				// Geysers can be uncovered over time
 				allGeysers = lastSelection.world != null ? FindObjectsOfType<Geyser>() : null;
 				// If planetoid, check meteor showers

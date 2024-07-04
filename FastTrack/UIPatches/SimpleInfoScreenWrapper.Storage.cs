@@ -16,6 +16,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+using PeterHan.PLib.Core;
 using UnityEngine;
 
 using DETAILTABS = STRINGS.UI.DETAILTABS;
@@ -74,6 +75,14 @@ namespace PeterHan.FastTrack.UIPatches {
 					}
 				}
 			}
+
+			if (teleStorage != null && teleStorageType != null) {
+				var Method = teleStorageType.GetMethodSafe("AddStorageItems", false, PPatchTools.AnyArguments);
+				if (Method != null) {
+					total = (int)Method.Invoke(teleStorage, new object[] { sis.StoragePanel, total });
+				}
+			}
+
 			if (total == 0)
 				sis.StoragePanel.SetLabel("storage_empty", DETAILTABS.DETAILS.STORAGE_EMPTY, "");
 		}
@@ -131,7 +140,7 @@ namespace PeterHan.FastTrack.UIPatches {
 		private void RefreshStorage() {
 			if (conditionParent != null) {
 				var panel = sis.StoragePanel;
-				if (storages.Count > 0)
+				if (storages.Count > 0 || teleStorage != null)
 					AddAllItems();
 				panel.Commit();
 			}
